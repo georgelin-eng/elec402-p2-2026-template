@@ -16,14 +16,16 @@ module mkMultBuff #(parameter N = 32) (
     input logic EN_blockRead,
     output logic RDY_blockRead,
     output logic VALID_memVal,
-    output logic [N-1:0] memVal_data,
+    output logic [N-1:0] memVal_data, // signed product read from memory
 
-    // Memory write port
+    // MEMORY
+
+    // write port 
     output logic EN_writeMem,
     output logic [5:0] writeMem_addr,
     output logic [N-1:0] writeMem_val,
 
-    // Memory read port
+    //Memory read port
     output logic EN_readMem,
     output logic [5:0] readMem_addr,
     input logic [N-1:0] readMem_val
@@ -31,5 +33,55 @@ module mkMultBuff #(parameter N = 32) (
 
     // TODO: implement the fill/drain control logic and instantiate your
     //       pipelined signed multiplier here.
+
+    logic            EN_mult_pipelined;
+    logic [N-1:0]    output_val;
+
+    mult_16b #(
+        .N              (32),
+        .PIPELINE_DEPTH (2)
+    ) u_mult_16b (
+        .clk                (clk),
+        .RST_N              (RST_N),
+
+        // Multiplier / write side
+        .EN_mult            (EN_mult),
+        .mult_input0        (mult_input0),   // signed [15:0]
+        .mult_input1        (mult_input1),   // signed [15:0]
+
+        .EN_mult_pipelined  (EN_mult_pipelined),
+        .RDY_mult           (RDY_mult),
+
+        .output_val         (output_val)     // [N-1:0]
+    ); 
+
+    assign writeMem_val = output_val;
+    assign memVal_data = readMem_val;
+
+    mult_cntrl #(
+        .MEM_DEPTH (64)
+    ) u_mult_cntrl (
+        .clk                (clk),
+        .RST_N              (RST_N),
+
+        .EN_mult            (EN_mult),
+        .EN_mult_pipelined  (EN_mult_pipelined),
+        .RDY_mult           (RDY_mult_cntrl),
+
+        // Read / drain side
+        .EN_blockRead       (EN_blockRead),
+        .RDY_blockRead      (RDY_blockRead),
+        .VALID_memVal       (VALID_memVal),
+
+        // Memory write port
+        .EN_writeMem        (EN_writeMem),
+        .writeMem_addr      (writeMem_addr),
+
+        // Memory read port
+        .EN_readMem         (EN_readMem),
+        .readMem_addr       (readMem_addr)
+    );
+
+
 
 endmodule : mkMultBuff
