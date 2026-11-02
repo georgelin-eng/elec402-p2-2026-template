@@ -9,6 +9,8 @@ module mkMultBuff_tb #(
     parameter int  N = 32
 );
 
+    integer ERROR_COUNT;
+
     logic clk, RST_N;
 
     logic EN_mult;
@@ -30,7 +32,7 @@ module mkMultBuff_tb #(
     phases             phases();
 
     // Main DUT stimulus
-    mkMultBuff_test_seq test_seq (.vif(dut_if), .phases(phases));
+    mkMultBuff_test_seq test_seq (.vif(dut_if), .phases(phases), .ERROR_COUNT(ERROR_COUNT));
 
     // These are set in TB so handle seperately from input and output wiring
     assign dut_if.clk = clk;
@@ -101,7 +103,10 @@ module mkMultBuff_tb #(
         test_seq.start();
         phases.run_phase = 0;
 
-        // $display("TODO: implement rtl_checker");
+
+        $display("ERROR COUNT = %d", ERROR_COUNT);
+        if (ERROR_COUNT == 0) $display("ALL PASS");
+        else                  $display("** TEST FAILED! **");
 
         $stop;
     end

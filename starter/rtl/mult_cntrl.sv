@@ -27,7 +27,8 @@ module mult_cntrl # (MEM_DEPTH = 64)(
         FILL_DROP_RDY,
         FULL,
         DRAIN,
-        EMPTY
+        EMPTY,
+        EMPTY_DROP_VALID
     } fsm_state;
 
     fsm_state state, next_state;
@@ -72,6 +73,11 @@ module mult_cntrl # (MEM_DEPTH = 64)(
 */
 
     logic [5:0] mult_req_received;
+    logic       is_not_full;
+    logic       is_not_empty;
+
+    logic       reset_write_count;
+    logic       reset_read_count;
 
     // Next state logic
     always_ff @(posedge clk) begin
@@ -112,6 +118,7 @@ module mult_cntrl # (MEM_DEPTH = 64)(
                 else         next_state = EMPTY;
             end
 
+
             default: next_state = IDLE;
 
         endcase
@@ -130,45 +137,61 @@ module mult_cntrl # (MEM_DEPTH = 64)(
     always_ff @(posedge clk) begin
         if (!RST_N) begin
             RDY_mult <= 1'b0;
-            // EN_writeMem <= 1'b0;
             RDY_blockRead <= 1'b0;
+            is_not_full   <= 1'b0;
+            is_not_empty  <= 1'b0;
+
+            reset_write_count <= 1'b0;
+            reset_read_count  <= 1'b0;
         end
         else begin
             RDY_mult <= 1'b0;
-            // EN_writeMem <= 1'b0;
             RDY_blockRead <= 1'b0;
+            is_not_full   <= 1'b0;
+            is_not_empty  <= 1'b0;
+
+            reset_write_count <= 1'b0;
+            reset_read_count  <= 1'b0;
 
             case (next_state)
                 IDLE: begin
                     RDY_mult <= 1'b1;
+                    is_not_full <= 1'b1;
                 end
 
                 FILL: begin
                     RDY_mult <= 1'b1;
-                    // EN_writeMem <= (1'b1 & EN_mult_pipelined);
+                    is_not_full <= 1'b1;
+                    reset_read_count <= 1'b1;
                 end
 
                 FILL_DROP_RDY: begin
                     RDY_mult <= 1'b0;
-                    // EN_writeMem <= 1'b1;
+                    is_not_full <= 1'b0;
                 end
 
                 FULL: begin
                     RDY_blockRead <= 1'b1;
+                    is_not_empty <= 1'b1;
                 end
 
                 DRAIN: begin
-                    VALID_memVal <= 1'b1 & EN_blockRead;
+                    is_not_empty <= 1'b1;
+                    RDY_blockRead <= 1'b1;
+                    // VALID_memVal <= 1'b1 & EN_blockRead;
+                    reset_write_count <= 1'b1;
                 end
 
                 EMPTY: begin
-                    VALID_memVal <= 1'b0;
+                    is_not_empty <= 1'b0;
+                    // VALID_memVal <= 1'b1;
                     RDY_blockRead <= 1'b0;
+                    RDY_mult      <= 1'b1;
+                    is_not_full <= 1'b1;
                 end
 
                 default: begin
                     RDY_mult <= 1'b0;
-                    // EN_writeMem <= 1'b0;
                     RDY_blockRead <= 1'b0;
                 end
             endcase
@@ -180,21 +203,30 @@ module mult_cntrl # (MEM_DEPTH = 64)(
     // so it must be implemented with combinational logic
     assign EN_readMem = EN_blockRead && RDY_blockRead;
 
+    always_ff @(posedge clk) begin
+        if (~RST_N) VALID_memVal <= 1'b0;
+        else VALID_memVal <= EN_readMem;
+    end
+
     // Address counters
 
     always_ff @( posedge clk ) begin : write_addr_counter
         if (~RST_N) begin
             writeMem_addr <= 'b0;
             mult_req_received <= 'b0;
+        end
+        else if (reset_write_count) begin
+            writeMem_addr <= 'b0;
+            mult_req_received <= 'b0;
         end else begin
 
             // sync write address with the pipelined products
-            if (EN_mult_pipelined) begin
+            if (EN_mult_pipelined && is_not_full) begin
                 writeMem_addr <= writeMem_addr + 1;
             end
 
             // For dropping RDY_mult early
-            if (EN_mult) begin
+            if (EN_mult && is_not_full) begin
                 mult_req_received <= mult_req_received + 1;
             end
         end
@@ -203,8 +235,11 @@ module mult_cntrl # (MEM_DEPTH = 64)(
     always_ff @( posedge clk ) begin : read_addr_counter
         if (~RST_N) begin
             readMem_addr <= 'b0;
-        end else begin
-            if (EN_blockRead) begin
+        end else if (reset_read_count) begin
+            readMem_addr <= 'b0;
+        end
+        else begin
+            if (EN_blockRead && is_not_empty) begin
                 readMem_addr <= readMem_addr + 1;
             end
         end
