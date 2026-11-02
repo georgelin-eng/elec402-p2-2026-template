@@ -20,7 +20,7 @@ module mult_cntrl # (MEM_DEPTH = 64)(
     output logic [5:0] readMem_addr
 );
     
-    typedef enum logic [2:0]
+    typedef enum logic [3:0]
     { 
         IDLE,
         FILL,
@@ -71,7 +71,7 @@ module mult_cntrl # (MEM_DEPTH = 64)(
         readMem_addr starts at 0
 */
 
-    logic mult_req_received;
+    logic [5:0] mult_req_received;
 
     // Next state logic
     always_ff @(posedge clk) begin
@@ -80,36 +80,36 @@ module mult_cntrl # (MEM_DEPTH = 64)(
     end
 
     // State transition logic
-    always_ff @(posedge clk) begin
+    always_comb begin
         case (state)
             IDLE: begin 
-                if (EN_mult)    next_state <= FILL;
-                else            next_state <= IDLE;
+                if (EN_mult)    next_state = FILL;
+                else            next_state = IDLE;
             end
 
             FILL: begin
-                if (mult_req_received == MEM_DEPTH) next_state <= FILL_DROP_RDY;
-                else                                next_state <= FILL;
+                if (mult_req_received == MEM_DEPTH-1) next_state = FILL_DROP_RDY;
+                else                                  next_state = FILL;
             end
 
             FILL_DROP_RDY: begin
-                if (writeMem_addr == MEM_DEPTH) next_state <= FULL;
-                else                            next_state <= FILL_DROP_RDY;
+                if (writeMem_addr == MEM_DEPTH-1) next_state = FULL;
+                else                              next_state = FILL_DROP_RDY;
             end
 
             FULL: begin
-                if (EN_blockRead) next_state <= DRAIN;
-                else              next_state <= FULL;
+                if (EN_blockRead) next_state = DRAIN;
+                else              next_state = FULL;
             end
 
             DRAIN: begin
-                if (readMem_addr == MEM_DEPTH) next_state <= EMPTY;
-                else                           next_state <= DRAIN;
+                if (readMem_addr == MEM_DEPTH-1) next_state = EMPTY;
+                else                             next_state = DRAIN;
             end
 
             EMPTY: begin
-                if (EN_mult) next_state <= FILL;
-                else         next_state <= EMPTY;
+                if (EN_mult) next_state = FILL;
+                else         next_state = EMPTY;
             end
 
             default: next_state = IDLE;
@@ -117,14 +117,25 @@ module mult_cntrl # (MEM_DEPTH = 64)(
         endcase
     end
 
+    // Assign: one cycle too slow
+    always_comb begin
+        case(state)
+            FILL: EN_writeMem = 1'b1 & EN_mult_pipelined;
+            FILL_DROP_RDY: EN_writeMem = 1'b1;
+            default: EN_writeMem = 1'b0;
+        endcase
+    end
+
     // State output logic
     always_ff @(posedge clk) begin
         if (!RST_N) begin
-
+            RDY_mult <= 1'b0;
+            // EN_writeMem <= 1'b0;
+            RDY_blockRead <= 1'b0;
         end
         else begin
-            RDY_mult <= 1'b1;
-            EN_writeMem <= 1'b0;
+            RDY_mult <= 1'b0;
+            // EN_writeMem <= 1'b0;
             RDY_blockRead <= 1'b0;
 
             case (next_state)
@@ -133,12 +144,13 @@ module mult_cntrl # (MEM_DEPTH = 64)(
                 end
 
                 FILL: begin
-                    EN_writeMem <= (1'b1 & EN_mult_pipelined);
+                    RDY_mult <= 1'b1;
+                    // EN_writeMem <= (1'b1 & EN_mult_pipelined);
                 end
 
                 FILL_DROP_RDY: begin
                     RDY_mult <= 1'b0;
-                    EN_writeMem <= 1'b1;
+                    // EN_writeMem <= 1'b1;
                 end
 
                 FULL: begin
@@ -154,7 +166,11 @@ module mult_cntrl # (MEM_DEPTH = 64)(
                     RDY_blockRead <= 1'b0;
                 end
 
-                default: next_state = IDLE;
+                default: begin
+                    RDY_mult <= 1'b0;
+                    // EN_writeMem <= 1'b0;
+                    RDY_blockRead <= 1'b0;
+                end
             endcase
         end
 

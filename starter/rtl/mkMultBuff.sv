@@ -50,7 +50,6 @@ module mkMultBuff #(parameter N = 32) (
         .mult_input1        (mult_input1),   // signed [15:0]
 
         .EN_mult_pipelined  (EN_mult_pipelined),
-        .RDY_mult           (RDY_mult),
 
         .output_val         (output_val)     // [N-1:0]
     ); 
@@ -66,7 +65,7 @@ module mkMultBuff #(parameter N = 32) (
 
         .EN_mult            (EN_mult),
         .EN_mult_pipelined  (EN_mult_pipelined),
-        .RDY_mult           (RDY_mult_cntrl),
+        .RDY_mult           (RDY_mult),
 
         // Read / drain side
         .EN_blockRead       (EN_blockRead),

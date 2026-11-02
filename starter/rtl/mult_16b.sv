@@ -11,7 +11,6 @@ module mult_16b #( N = 32, PIPELINE_DEPTH = 2 ) (
     input   logic [15:0]    mult_input1,  // signed operand B (two's complement)
 
     output  logic           EN_mult_pipelined, // this is sent to the control logic so address is synced
-    output  logic           RDY_mult,
 
     output  logic [N-1:0]   output_val
 );
@@ -22,11 +21,14 @@ module mult_16b #( N = 32, PIPELINE_DEPTH = 2 ) (
     integer i, j;
 
     always_ff @(posedge clk) begin
-        if (~RST_N) EN_mult_sr <= '0;
-        else        EN_mult_sr <= {EN_mult_sr[PIPELINE_DEPTH-2:0], EN_mult};
+        // if (~RST_N) EN_mult_sr <= '0;
+        // else        EN_mult_sr <= {EN_mult_sr[PIPELINE_DEPTH-2:0], EN_mult};
+
+        if (~RST_N) EN_mult_pipelined <= '0;
+        else        EN_mult_pipelined <= EN_mult;
     end
 
-    assign EN_mult_pipelined = EN_mult_sr[PIPELINE_DEPTH-1];
+    // assign EN_mult_pipelined = EN_mult_sr[PIPELINE_DEPTH-1];
 
     // For now, simple outputs on EN_mult
     always_ff @( posedge clk) begin : blockName

@@ -34,3 +34,32 @@ interface mult_16b_if #(parameter N = 32);
     logic signed [N-1:0] output_val;
 
 endinterface : mult_16b_if
+
+interface mkMultBuff_if #(parameter N = 32);
+
+    logic clk;
+    logic RST_N;
+
+    // Multiplier / write side
+    logic                   EN_mult;
+    logic signed [15:0]     mult_input0;
+    logic signed [15:0]     mult_input1;
+    logic                   RDY_mult;
+
+    // Read / drain side
+    logic                   EN_blockRead;
+    logic                   RDY_blockRead;
+    logic                   VALID_memVal;
+    logic [N-1:0]           memVal_data;
+
+    // Memory write port
+    logic                   EN_writeMem;
+    logic [63:0]      writeMem_addr;
+    logic [N-1:0]           writeMem_val;
+
+    // Memory read port
+    logic                   EN_readMem;
+    logic [63:0]            readMem_addr;
+    logic [N-1:0]           readMem_val;
+
+endinterface : mkMultBuff_if

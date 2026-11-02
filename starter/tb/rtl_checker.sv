@@ -24,6 +24,42 @@ module mkMultBuff_tb #(
     logic [5:0] writeMem_addr, readMem_addr;
     logic [N-1:0] writeMem_val, readMem_val;
 
+
+    // Interfaces
+    mkMultBuff_if      dut_if();
+    phases             phases();
+
+    // Main DUT stimulus
+    mkMultBuff_test_seq test_seq (.vif(dut_if), .phases(phases));
+
+    // These are set in TB so handle seperately from input and output wiring
+    assign dut_if.clk = clk;
+    assign dut_if.RST_N = RST_N;
+    assign dut_if.readMem_val = readMem_val;
+
+    // Input connections
+
+    assign EN_mult       = dut_if.EN_mult;
+    assign mult_input0   = dut_if.mult_input0;
+    assign mult_input1   = dut_if.mult_input1;
+
+    assign EN_blockRead  = dut_if.EN_blockRead;
+
+
+    // Output connections
+    assign dut_if.RDY_mult      = RDY_mult;
+
+    assign dut_if.RDY_blockRead = RDY_blockRead;
+    assign dut_if.VALID_memVal  = VALID_memVal;
+    assign dut_if.memVal_data   = memVal_data;
+
+    assign dut_if.EN_writeMem   = EN_writeMem;
+    assign dut_if.writeMem_addr = writeMem_addr;
+    assign dut_if.writeMem_val  = writeMem_val;
+
+    assign dut_if.EN_readMem    = EN_readMem;
+    assign dut_if.readMem_addr  = readMem_addr; 
+
     mkMultBuff #(.N(N)) DUT (
         .clk(clk), .RST_N(RST_N),
         .EN_mult(EN_mult),
@@ -58,8 +94,31 @@ module mkMultBuff_tb #(
     initial begin
         // TODO: reset, fill the memory with signed products, drain and check,
         //       print "ALL PASS" on success. bob.py greps for "ALL PASS".
-        $display("TODO: implement rtl_checker");
-        $finish;
+
+        setup_phases();
+        reset();
+
+        test_seq.start();
+        phases.run_phase = 0;
+
+        // $display("TODO: implement rtl_checker");
+
+        $stop;
     end
+
+    task setup_phases();
+        phases.reset_phase = 0;
+        phases.run_phase = 0;
+        phases.report_phase = 0;
+    endtask
+
+    task reset();
+        phases.reset_phase = 1;
+        @ (posedge clk) RST_N = 1'b1;
+        @ (posedge clk) RST_N = 1'b0;
+        @ (posedge clk) RST_N = 1'b1;
+        
+        phases.reset_phase = 0;
+    endtask
 
 endmodule

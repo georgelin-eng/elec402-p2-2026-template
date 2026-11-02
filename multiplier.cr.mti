@@ -1,22 +1,31 @@
-/ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/registerArray.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/registerArray.sv
+/ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mult_cntrl.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mult_cntrl.sv
+QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
+-- Compiling module mult_cntrl
+
+Top level modules:
+	mult_cntrl
+
+} {} {}} /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/registerArray.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/registerArray.sv
 QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
 -- Compiling module registerArray
 
 Top level modules:
 	registerArray
 
-} {} {}} /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mult_cntrl.sv {0 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mult_cntrl.sv
-QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
--- Compiling module mult_cntrl
-** Error: (vlog-13038) /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mult_cntrl.sv(26): near ")": Missing port in ansi port list.
-
-} {4.0 5.0} {}} /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/tb/mult_16b_test_seq.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/tb/mult_16b_test_seq.sv
+} {} {}} /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/tb/mult_16b_test_seq.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/tb/mult_16b_test_seq.sv
 QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
 -- Compiling module mult_16b_test_seq
 -- Importing package env_pkg
 
 Top level modules:
 	mult_16b_test_seq
+
+} {} {}} /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mkMultBuff.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mkMultBuff.sv
+QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
+-- Compiling module mkMultBuff
+
+Top level modules:
+	mkMultBuff
 
 } {} {}} /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mult_16b.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/rtl/mult_16b.sv
 QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
@@ -25,11 +34,19 @@ QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
 Top level modules:
 	mult_16b
 
+} {} {}} /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/tb/rtl_checker.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/tb/rtl_checker.sv
+QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
+-- Compiling module mkMultBuff_tb
+
+Top level modules:
+	mkMultBuff_tb
+
 } {} {}} /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/tb/env_pkg.sv {1 {vlog -work work -vopt -sv -stats=none /ubc/ece/home/ugrads/g/glin05/ELEC402/Project2/elec402-p2-2026-template/starter/tb/env_pkg.sv
 QuestaSim-64 vlog 2020.1_1 Compiler 2020.03 Mar  4 2020
 -- Compiling package env_pkg
 -- Compiling interface phases
 -- Compiling interface mult_16b_if
+-- Compiling interface mkMultBuff_if
 
 Top level modules:
 	--none--
